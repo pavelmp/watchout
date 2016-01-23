@@ -35,9 +35,14 @@ var updateBestScore = function(){
 };
 
 var drag = d3.behavior.drag().on('drag', function(){
-  d3.select('.player').transition().style("left", limiter('x',d3.event.x,64) + "px")
-                      .style("top", limiter('y',d3.event.y,64) + "px");   
+  var y = parseInt(d3.select(".player").style("top").split("px")[0]);
+  var x = parseInt(d3.select(".player").style("left").split("px")[0]);
+  var angle = 360 * (Math.atan2((d3.event.y-y),(d3.event.x-x))/(Math.PI*2));
+  console.log(angle);
 
+  d3.select('.player').style("left", limiter('x',d3.event.x,64) + "px")
+                      .style("top", limiter('y',d3.event.y,64) + "px")
+                      .style("transform","rotate(" + angle + "deg)");
 });
 
 var Player = function(){
@@ -50,16 +55,16 @@ var Player = function(){
                                       .call(drag);
 };
 
-Player.prototype.set = function(axis, value) {
-  var minimum = gameParameters.padding;
-  var maxX = gameBoard.width - minimum;
-  var maxY = gameBoard.height - minimum;
-  if(axis === "x"){
-    this.x = Math.max(Math.min(maxX, value), minimum);
-  } else if(axis === "y"){
-    this.y = Math.max(Math.min(maxY, value), minimum);
-  }
-};
+// Player.prototype.set = function(axis, value) {
+//   var minimum = gameParameters.padding;
+//   var maxX = gameBoard.width - minimum;
+//   var maxY = gameBoard.height - minimum;
+//   if(axis === "x"){
+//     this.x = Math.max(Math.min(maxX, value), minimum);
+//   } else if(axis === "y"){
+//     this.y = Math.max(Math.min(maxY, value), minimum);
+//   }
+// };
 
 var enemies = [];
 var enemizer = function(){
@@ -94,28 +99,8 @@ var moveEnemies = function(){
                         .style("top", function(d){return d.y + "px";});
 };
 
-//var coord = [0,0];
-
-
-
-
-/*
-var movePlayer = function() {
-  //var player = d3.selectAll('.player');
-    d3.selectAll('div').on('mouseover',function(){
-      coord = d3.mouse(this);
-    });
-    //console.log(coord);
-};
-
-    d3.select('.player').transition().duration(10)
-                        .style("left", coord[0] + "px")
-                        .style("top", coord[1] + "px");   
-*/
-
 enemizer();
 var player1 = new Player();
-//setInterval(movePlayer, 1);
 setInterval(moveEnemies, 2000);
 
 
