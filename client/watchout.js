@@ -1,8 +1,15 @@
+/*
+  .append("image")
+  .atter("xlink:href", "asteroid.png")
+  .attr("width", 32)
+  .attr("height", 32)
+*/
+
 var gameParameters = {
   height: 450,
   width: 700,
   nEnemies: 30,
-  padding: 30
+  padding: 0
 };
 
 var gameStats = {
@@ -21,8 +28,13 @@ var limiter = function(axis, value, size) {
   return result;
 };
 
-var gameBoard = d3.select('.board').style({width: gameParameters.width.toString()+'px'})
-                                   .style({height: gameParameters.height.toString()+'px'});
+var gameBoard = d3.select('.board').append("svg")
+                                   .attr('width', 700)
+                                   .attr('height', 450);
+
+gameBoard.append("rect").attr('width', 700)
+                        .attr('height', 450)
+                        .attr('fill','blue');
 
 var updateScore = function(){
   d3.select('.current').select('span').text(gameStats.score.toString());
@@ -34,73 +46,105 @@ var updateBestScore = function(){
   d3.select('.highscore').select('span').text(maxScore.toString());
 };
 
-var drag = d3.behavior.drag().on('drag', function(){
-  var y = parseInt(d3.select(".player").style("top").split("px")[0]);
-  var x = parseInt(d3.select(".player").style("left").split("px")[0]);
-  var angle = 360 * (Math.atan2((d3.event.y-y),(d3.event.x-x))/(Math.PI*2));
-  console.log(angle);
 
-  d3.select('.player').style("left", limiter('x',d3.event.x,64) + "px")
-                      .style("top", limiter('y',d3.event.y,64) + "px")
-                      .style("transform","rotate(" + angle + "deg)");
+var drag = d3.behavior.drag().on('drag', function(){
+  d3.select(this).attr("cx", limiter('x',d3.event.x,0))
+                      .attr("cy", limiter('y',d3.event.y,0));
+                      // .attr("transform","rotate(" + angle + "deg)");
 });
 
-var Player = function(){
-  this.x = gameParameters.width/2-32;
-  this.y = gameParameters.height/2-32;
-
-  d3.select('.board').append('div').classed('player',true)
-                                      .style('left', this.x.toString() + "px")
-                                      .style('top', this.y.toString() + "px")
-                                      .call(drag);
-};
-
-// Player.prototype.set = function(axis, value) {
-//   var minimum = gameParameters.padding;
-//   var maxX = gameBoard.width - minimum;
-//   var maxY = gameBoard.height - minimum;
-//   if(axis === "x"){
-//     this.x = Math.max(Math.min(maxX, value), minimum);
-//   } else if(axis === "y"){
-//     this.y = Math.max(Math.min(maxY, value), minimum);
-//   }
-// };
+var player = gameBoard.append('circle')
+                      .classed('player',true)
+                      .attr('r', 10)
+                      .attr('fill', 'black')
+                      .attr('cx', gameParameters.width/2)
+                      .attr('cy', gameParameters.height/2)
+                      .call(drag);
 
 var enemies = [];
 var enemizer = function(){
   for(var i = 0 ; i < gameParameters.nEnemies; i++){
     var enemy = {
       id: i,
-      x: limiter('x', Math.random()*gameParameters.width,32),
-      y: limiter('y', Math.random()*gameParameters.height,32),
+      x: limiter('x', Math.random()*gameParameters.width,0),
+      y: limiter('y', Math.random()*gameParameters.height,0),
       r: 0
     };
     enemies.push(enemy);
   }
-  d3.select('.board').selectAll('.enemy')
+
+  gameBoard.selectAll('circle.enemy')
                      .data(enemies)
                      .enter()
-                     .append("div")
+                     //.append("svg")
+                     .append("circle")
+                     .attr("cx", function(d){return d.x ;})
+                     .attr("cy", function(d){return d.y ;})
+                     .attr('r',10)
+                     //.attr("width", 32)
+                     //.attr("height", 32)
+                     // .attr("color","red")
+                     .attr("fill","red")
                      .attr('class','enemy')
-                     .style("left", function(d){return d.x + "px";})
-                     .style("top", function(d){return d.y + "px";});
+                     //.append("image")
+                     //.attr("xlink:href", "asteroid.png")
+                     //.style("left","150px")
+                     //.style("top","150px")
 };
-
 
 var moveEnemies = function(){
   for(var i = 0; i < enemies.length; i++) {
-    enemies[i].x = limiter('x', Math.random()*gameParameters.width,32);
-    enemies[i].y = limiter('y', Math.random()*gameParameters.height,32);
+    enemies[i].x = limiter('x', Math.random()*gameParameters.width,0);
+    enemies[i].y = limiter('y', Math.random()*gameParameters.height,0);
   }
   d3.selectAll('.enemy').data(enemies)
                         .transition()
                         .duration(2000)
-                        .style("left", function(d){return d.x + "px";})
-                        .style("top", function(d){return d.y + "px";});
+                        .attr("cx", function(d){return d.x;})
+                        .attr("cy", function(d){return d.y;})
+                        .attr("r", 10)
+                        .tween('fancyTween', ourTween);
+};
+var increaseScore = function() {
+  gameStats.score++;
+  updateScore();
+};
+var onCollision = function() {
+  updateBestScore();
+  gameStats.score = 0;
+  updateScore();
+};
+
+var checkCollision = function(enemy){
+  var radiusSum =  parseFloat(enemy.attr('r')) + player.attr('r');
+  var xDiff = parseFloat(enemy.attr('cx')) - player.attr('cx');
+  var yDiff = parseFloat(enemy.attr('cy')) - player.attr('cy');
+
+  var separation = Math.sqrt( Math.pow(xDiff,2) + Math.pow(yDiff,2));
+  if(separation < radiusSum*3){
+    onCollision();
+  }  
+};
+var ourTween = function(endData) {
+  console.log(endData);
+  var enemy = d3.select(this);
+  var startPosition = [];
+  startPosition[0] = parseFloat(enemy.attr('cx'));
+  startPosition[1] = parseFloat(enemy.attr('cy'));
+  var endPosition = [endData.x, endData.y];
+    return function (tick){
+      checkCollision(enemy);
+      var enemyNextPosition = [];
+      enemyNextPosition[0] = startPosition[0] + (endPosition[0] - startPosition[0]) * tick;
+      enemyNextPosition[1] = startPosition[1] + (endPosition[1] - startPosition[1]) * tick;
+      enemy.attr('cx', enemyNextPosition[0])
+           .attr('cy', enemyNextPosition[1]);
+    };
 };
 
 enemizer();
-var player1 = new Player();
+//var player1 = new Player();
+setInterval(increaseScore, 50);
 setInterval(moveEnemies, 2000);
 
 

@@ -1,23 +1,24 @@
 /* your beautiful css styling goes here! */
 .board {
-  background-color: lightblue;
-  position: relative;
-  background-image: url(http://7-themes.com/data_images/out/51/6946579-space-stars-background.jpg);
+  /*background-color: lightblue;*/
+  /*position: relative;*/
+
+  width: 780px;
+  height: 625px;
+  /*background-image: url(http://7-themes.com/data_images/out/51/6946579-space-stars-background.jpg);*/*/
 }
 
-.player {
+/*.player {
   content: url("spaceship.png");
   height: 64px;
   width: auto;
   position: absolute;
   padding: 0;
-}
+  transform: rotate(120deg);
+}*/
 
 .enemy {
-  content: url("asteroid.png");
-  height: 32px;
-  width: auto;
-  position: absolute; 
+
 }
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
