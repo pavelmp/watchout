@@ -25,12 +25,11 @@ var updateBestScore = function(){
 
 var Player = function(){
   this.x = gameParameters.width/2-32;
-  this.y = gameParameters.height/2+32;
+  this.y = gameParameters.height/2-32;
 
   d3.select('.board').append('div').classed('player',true)
                                       .style('left', this.x.toString() + "px")
                                       .style('top', this.y.toString() + "px")
-                                      .style('padding', gameParameters.padding.toString() + "px");
 };
 
 Player.prototype.set = function(axis, value) {
@@ -44,8 +43,8 @@ Player.prototype.set = function(axis, value) {
   }
 };
 
+var enemies = [];
 var enemizer = function(){
-  var enemies = [];
   for(var i = 0 ; i < gameParameters.nEnemies; i++){
     var enemy = {
       id: i,
@@ -65,8 +64,21 @@ var enemizer = function(){
                      .style("top", function(d){return d.y + "px";});
 };
 
-var player1 = new Player();
+
+var moveEnemies = function(){
+  for(var i = 0; i < enemies.length; i++) {
+    enemies[i].x = Math.min(gameParameters.width - gameParameters.padding-16, Math.max(Math.random()*gameParameters.width, gameParameters.padding)-16);
+    enemies[i].y = Math.min(gameParameters.height - gameParameters.padding-16, Math.max(Math.random()*gameParameters.height, gameParameters.padding)-16);
+  }
+  d3.selectAll('.enemy').data(enemies)
+                        .transition()
+                        .duration(2000)
+                        .style("left", function(d){return d.x + "px";})
+                        .style("top", function(d){return d.y + "px";});
+};
 //player1();
 enemizer();
+var player1 = new Player();
 
+setInterval(moveEnemies, 2000);
 

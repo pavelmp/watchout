@@ -9,6 +9,7 @@
   height: 64px;
   width: auto;
   position: absolute;
+  padding: 0;
 }
 
 .enemy {
