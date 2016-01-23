@@ -80,7 +80,7 @@ var enemizer = function(){
                      .append("circle")
                      .attr("cx", function(d){return d.x ;})
                      .attr("cy", function(d){return d.y ;})
-                     .attr('r',10)
+                     .attr('r',0)
                      //.attr("width", 32)
                      //.attr("height", 32)
                      // .attr("color","red")
@@ -99,10 +99,12 @@ var moveEnemies = function(){
   }
   d3.selectAll('.enemy').data(enemies)
                         .transition()
+                        .duration(500)
+                        .attr('r', 10)
+                        .transition()
                         .duration(2000)
                         .attr("cx", function(d){return d.x;})
                         .attr("cy", function(d){return d.y;})
-                        .attr("r", 10)
                         .tween('fancyTween', ourTween);
 };
 var increaseScore = function() {
@@ -116,17 +118,16 @@ var onCollision = function() {
 };
 
 var checkCollision = function(enemy){
-  var radiusSum =  parseFloat(enemy.attr('r')) + player.attr('r');
+  var radiusSum =  parseFloat(enemy.attr('r')) + parseFloat(player.attr('r'));
   var xDiff = parseFloat(enemy.attr('cx')) - player.attr('cx');
   var yDiff = parseFloat(enemy.attr('cy')) - player.attr('cy');
 
   var separation = Math.sqrt( Math.pow(xDiff,2) + Math.pow(yDiff,2));
-  if(separation < radiusSum*3){
+  if(separation < radiusSum){
     onCollision();
   }  
 };
 var ourTween = function(endData) {
-  console.log(endData);
   var enemy = d3.select(this);
   var startPosition = [];
   startPosition[0] = parseFloat(enemy.attr('cx'));
@@ -143,7 +144,6 @@ var ourTween = function(endData) {
 };
 
 enemizer();
-//var player1 = new Player();
 setInterval(increaseScore, 50);
 setInterval(moveEnemies, 2000);
 
