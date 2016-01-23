@@ -29,11 +29,12 @@ var Player = function(){
 
   d3.select('.board').append('div').classed('player',true)
                                       .style('left', this.x.toString() + "px")
-                                      .style('top', this.y.toString() + "px");
+                                      .style('top', this.y.toString() + "px")
+                                      .style('padding', gameParameters.padding.toString() + "px");
 };
 
 Player.prototype.set = function(axis, value) {
-  var minimum = d3.select('.board').attr('padding');
+  var minimum = gameParameters.padding;
   var maxX = gameBoard.width - minimum;
   var maxY = gameBoard.height - minimum;
   if(axis === "x"){
@@ -43,5 +44,29 @@ Player.prototype.set = function(axis, value) {
   }
 };
 
+var enemizer = function(){
+  var enemies = [];
+  for(var i = 0 ; i < gameParameters.nEnemies; i++){
+    var enemy = {
+      id: i,
+      x: Math.min(gameParameters.width - gameParameters.padding-16, Math.max(Math.random()*gameParameters.width, gameParameters.padding)-16),
+      y: Math.min(gameParameters.height - gameParameters.padding-16, Math.max(Math.random()*gameParameters.height, gameParameters.padding)-16),
+      r: 0
+    };
+    enemies.push(enemy);
+  }
+  console.log(enemies);
+  d3.select('.board').selectAll('.enemy')
+                     .data(enemies)
+                     .enter()
+                     .append("div")
+                     .attr('class','enemy')
+                     .style("left", function(d){return d.x + "px";})
+                     .style("top", function(d){return d.y + "px";});
+};
+
 var player1 = new Player();
-player1();
+//player1();
+enemizer();
+
+

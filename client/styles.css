@@ -1,6 +1,7 @@
 /* your beautiful css styling goes here! */
 .board {
   background-color: lightblue;
+  position: relative;
 }
 
 .player {
@@ -8,6 +9,13 @@
   height: 64px;
   width: auto;
   position: absolute;
+}
+
+.enemy {
+  content: url("asteroid.png");
+  height: 32px;
+  width: auto;
+  position: absolute; 
 }
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
