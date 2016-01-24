@@ -43,22 +43,30 @@ var gameBoard = d3.select('.board').append("svg")
 
 gameBoard.append("rect").attr('width', gameParameters.width)
                         .attr('height', gameParameters.height)
-                        .attr('fill','blue');
+                        .attr('fill','lightblue');
 
 
 
 var drag = d3.behavior.drag().on('drag', function(){
-  d3.select(this).attr("cx", limiter('x',d3.event.x,0))
-                      .attr("cy", limiter('y',d3.event.y,0));
+  d3.select(this).attr("x", limiter('x',d3.event.x,0))
+                      .attr("y", limiter('y',d3.event.y,0));
 });
 
-var player = gameBoard.append('circle')
+var player = gameBoard.append('svg')
                       .classed('player',true)
                       .attr('r', 10)
-                      .attr('fill', 'black')
-                      .attr('cx', gameParameters.width/2)
-                      .attr('cy', gameParameters.height/2)
+                      .attr("width", 32)
+                      .attr("height", 32)
+                      .attr('x', gameParameters.width/2)
+                      .attr('y', gameParameters.height/2)
                       .call(drag);
+
+  var g2 = player.append("g");
+  var playerImg = g2.append("svg:image")
+                    .attr("xlink:href", "spaceship.png")
+                    .attr("width", 32)
+                    .attr("height", 32)
+                    
 
 var enemies = [];
 var enemizer = function(){
@@ -66,8 +74,7 @@ var enemizer = function(){
     var enemy = {
       id: i,
       x: Math.floor(limiter('x', Math.random()*gameParameters.width,0)),
-      y: Math.floor(limiter('y', Math.random()*gameParameters.height,0)),
-      r: 0
+      y: Math.floor(limiter('y', Math.random()*gameParameters.height,0))
     };
     enemies.push(enemy);
   }
@@ -110,9 +117,9 @@ var onCollision = function() {
 };
 
 var checkCollision = function(enemy){
-  var radiusSum =  parseFloat(enemy.attr('width')/2) + parseFloat(player.attr('r'));
-  var xDiff = parseFloat(enemy.attr('x')) - player.attr('cx');
-  var yDiff = parseFloat(enemy.attr('y')) - player.attr('cy');
+  var radiusSum =  parseFloat(enemy.attr('width')/2) + parseFloat(player.attr('width')/2);
+  var xDiff = parseFloat(enemy.attr('x')) - player.attr('x');
+  var yDiff = parseFloat(enemy.attr('y')) - player.attr('y');
 
   var separation = Math.sqrt( Math.pow(xDiff,2) + Math.pow(yDiff,2));
   if(separation <= radiusSum){
